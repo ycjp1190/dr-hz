@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#07090d">
+    <meta name="application-name" content="Dr. Hz">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Dr. Hz">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Dr. Hz</title>
+    <link rel="icon" href="data:,">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="app-shell" aria-label="Dr. Hz frequency sound generator">
+      <header class="top-bar">
+        <div>
+          <p class="eyebrow">Frequency Generator</p>
+          <h1>Dr. Hz</h1>
+        </div>
+
+        <label id="waveSelectShell" class="wave-select">
+          <span>Wave</span>
+          <select id="waveform" aria-label="Waveform">
+            <option value="sine" selected>SINE</option>
+            <option value="square">SQUARE</option>
+            <option value="triangle">TRIANGLE</option>
+            <option value="sawtooth">SAW</option>
+          </select>
+        </label>
+
+        <div id="noiseModeBadge" class="noise-mode-badge" hidden>
+          <span>Mode</span>
+          <strong>NOISE</strong>
+        </div>
+      </header>
+
+      <section class="mode-tabs" aria-label="Generator mode">
+        <button id="toneModeButton" class="mode-tab active" type="button" data-mode="tone">TONE</button>
+        <button id="noiseModeButton" class="mode-tab" type="button" data-mode="noise">NOISE</button>
+      </section>
+
+      <section class="transport" aria-label="Playback and volume controls">
+        <label class="volume-control">
+          <span>VOL</span>
+          <input id="volumeSlider" type="range" min="0" max="100" value="35" aria-label="Volume">
+          <output id="volumeValue" for="volumeSlider">35%</output>
+        </label>
+
+        <button id="playButton" class="play-button" type="button" aria-pressed="false">
+          <span class="play-icon" aria-hidden="true"></span>
+          <span class="play-label">PLAY</span>
+        </button>
+
+        <p id="audioStatus" class="audio-status" aria-live="polite" hidden></p>
+      </section>
+
+      <section id="toneDisplay" class="frequency-display tone-panel" aria-live="polite" aria-atomic="true">
+        <div class="frequency-main">
+          <div class="frequency-row">
+            <div id="frequencyValue" class="frequency-value">440</div>
+            <div class="frequency-unit">Hz</div>
+          </div>
+          <div id="frequencyNote" class="frequency-note">A4</div>
+        </div>
+      </section>
+
+      <section id="noiseDisplay" class="noise-display noise-panel" aria-live="polite" aria-atomic="true" hidden>
+        <div>
+          <div id="noiseName" class="noise-name">WHITE</div>
+          <div id="noiseDescription" class="noise-description">Flat energy across the spectrum</div>
+        </div>
+        <div class="spectrum-card" aria-hidden="true">
+          <svg id="noiseGraph" class="noise-graph show-flat" viewBox="0 0 320 150" role="img">
+            <defs>
+              <linearGradient id="noiseLineGradient" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0%" stop-color="#48e6ff" />
+                <stop offset="55%" stop-color="#57f27a" />
+                <stop offset="100%" stop-color="#ffcc4d" />
+              </linearGradient>
+            </defs>
+            <path class="noise-grid-line" d="M20 35H300M20 75H300M20 115H300" />
+            <rect id="noiseFlatBar" class="noise-flat-bar" x="20" y="67" width="280" height="16" rx="8" />
+            <path id="noiseGraphLine" class="noise-graph-line" d="M20 75 L300 75" />
+          </svg>
+        </div>
+      </section>
+
+      <section id="faderSection" class="fader-section tone-panel" aria-label="Frequency range fader">
+        <div class="fader-labels" aria-hidden="true">
+          <span>20</span>
+          <span>20k</span>
+        </div>
+        <input id="frequencyFader" class="frequency-fader" type="range" min="0" max="10000" value="4467" aria-label="Frequency from 20 Hz to 20000 Hz">
+        <div class="scale-row" aria-hidden="true">
+          <span>20</span>
+          <span>50</span>
+          <span>100</span>
+          <span>500</span>
+          <span>1k</span>
+          <span>5k</span>
+          <span>10k</span>
+          <span>20k</span>
+        </div>
+      </section>
+
+      <section id="fineSection" class="fine-section tone-panel" aria-label="Fine frequency tuning">
+        <div class="fine-header">
+          <span>Tune Wheels</span>
+          <output id="fineVelocity">±1 Hz</output>
+        </div>
+
+        <div class="wheel-stack">
+          <div class="wheel-control">
+            <div class="wheel-label">
+              <span>COARSE</span>
+              <span>fast</span>
+            </div>
+            <div id="coarseWheel" class="tuning-wheel coarse-wheel" role="slider" tabindex="0" aria-label="Coarse tune frequency" aria-valuemin="20" aria-valuemax="20000" aria-valuenow="440" data-wheel="coarse">
+              <div id="coarseWheelTrack" class="wheel-track" aria-hidden="true">
+                <div class="wheel-glow"></div>
+                <div class="wheel-ticks"></div>
+                <div class="wheel-cap left"></div>
+                <div class="wheel-cap right"></div>
+                <div class="wheel-center-line"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wheel-control">
+            <div class="wheel-label">
+              <span>FINE</span>
+              <span>1 Hz</span>
+            </div>
+            <div id="fineWheel" class="tuning-wheel fine-wheel" role="slider" tabindex="0" aria-label="Fine tune frequency" aria-valuemin="20" aria-valuemax="20000" aria-valuenow="440" data-wheel="fine">
+              <div id="fineWheelTrack" class="wheel-track" aria-hidden="true">
+                <div class="wheel-glow"></div>
+                <div class="wheel-ticks"></div>
+                <div class="wheel-cap left"></div>
+                <div class="wheel-cap right"></div>
+                <div class="wheel-center-line"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="noiseControls" class="noise-controls noise-panel" aria-label="Noise type" hidden>
+        <button class="noise-button active" type="button" data-noise="white">WHITE</button>
+        <button class="noise-button" type="button" data-noise="pink">PINK</button>
+        <button class="noise-button" type="button" data-noise="brown">BROWN</button>
+        <button class="noise-button" type="button" data-noise="green">GREEN</button>
+        <button class="noise-button" type="button" data-noise="blue">BLUE</button>
+        <button class="noise-button" type="button" data-noise="violet">VIOLET</button>
+        <button class="noise-button wide" type="button" data-noise="grey">GREY</button>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        let refreshingForUpdate = false;
+
+        navigator.serviceWorker.addEventListener("controllerchange", () => {
+          if (refreshingForUpdate) return;
+          refreshingForUpdate = true;
+          window.location.reload();
+        });
+
+        function activateWaitingWorker(registration) {
+          if (registration.waiting) {
+            registration.waiting.postMessage({ type: "SKIP_WAITING" });
+          }
+        }
+
+        window.addEventListener("load", async () => {
+          try {
+            const registration = await navigator.serviceWorker.register("./sw.js");
+            activateWaitingWorker(registration);
+            registration.addEventListener("updatefound", () => {
+              const newWorker = registration.installing;
+              if (!newWorker) return;
+              newWorker.addEventListener("statechange", () => {
+                if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                  newWorker.postMessage({ type: "SKIP_WAITING" });
+                }
+              });
+            });
+            await registration.update();
+          } catch (error) {
+            console.warn("Service worker registration failed", error);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
