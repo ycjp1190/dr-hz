@@ -1,4 +1,4 @@
-const CACHE_NAME = "dr-hz-v12";
+const CACHE_NAME = "dr-hz-v13";
 const APP_SHELL = [
   "./",
   "./index.html",
