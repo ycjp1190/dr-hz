@@ -55,7 +55,6 @@ const saveFrequencyButton = document.querySelector("#saveFrequencyButton");
 const openSavedButton = document.querySelector("#openSavedButton");
 const savedFrequencyCount = document.querySelector("#savedFrequencyCount");
 const savedFrequencyModal = document.querySelector("#savedFrequencyModal");
-const savedModalBackdrop = document.querySelector("#savedModalBackdrop");
 const closeSavedButton = document.querySelector("#closeSavedButton");
 const savedFrequencyList = document.querySelector("#savedFrequencyList");
 const savedFrequencyEmpty = document.querySelector("#savedFrequencyEmpty");
@@ -224,14 +223,20 @@ function saveCurrentFrequency() {
 function openSavedFrequencies() {
   renderSavedFrequencies();
   savedFrequencyModal.hidden = false;
-  document.body.classList.add("saved-modal-open");
-  closeSavedButton.focus();
+  openSavedButton.setAttribute("aria-expanded", "true");
 }
 
 function closeSavedFrequencies() {
   savedFrequencyModal.hidden = true;
-  document.body.classList.remove("saved-modal-open");
-  openSavedButton.focus();
+  openSavedButton.setAttribute("aria-expanded", "false");
+}
+
+function toggleSavedFrequencies() {
+  if (savedFrequencyModal.hidden) {
+    openSavedFrequencies();
+  } else {
+    closeSavedFrequencies();
+  }
 }
 
 function frequencyToSliderValue(hz) {
@@ -752,9 +757,8 @@ noiseButtons.forEach((button) => {
 });
 
 saveFrequencyButton.addEventListener("click", saveCurrentFrequency);
-openSavedButton.addEventListener("click", openSavedFrequencies);
+openSavedButton.addEventListener("click", toggleSavedFrequencies);
 closeSavedButton.addEventListener("click", closeSavedFrequencies);
-savedModalBackdrop.addEventListener("click", closeSavedFrequencies);
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !savedFrequencyModal.hidden) {

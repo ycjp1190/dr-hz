@@ -308,35 +308,41 @@ input[type="range"] {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 34px;
+  min-height: 40px;
 }
 
 .frequency-action {
-  height: 34px;
-  border: 1px solid rgba(72, 230, 255, 0.28);
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
   border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 0 11px;
-  background: rgba(9, 16, 22, 0.9);
-  color: rgba(244, 251, 255, 0.76);
-  font-size: 0.68rem;
+  padding: 0 13px;
+  background: linear-gradient(135deg, var(--cyan), var(--green));
+  color: #031014;
+  font-size: 0.72rem;
   font-weight: 1000;
   letter-spacing: 0.06em;
   cursor: pointer;
   touch-action: manipulation;
+  box-shadow: 0 8px 18px rgba(72, 230, 255, 0.2);
 }
 
 .frequency-action:active {
-  border-color: var(--cyan);
-  color: var(--text);
+  filter: brightness(0.88);
+  transform: translateY(1px);
+}
+
+.open-saved-button {
+  background: linear-gradient(135deg, #48e6ff, #4a8dff);
 }
 
 .save-frequency-button.saved {
-  border-color: rgba(87, 242, 122, 0.5);
-  color: var(--green);
+  border-color: rgba(255, 255, 255, 0.42);
+  background: linear-gradient(135deg, #62f390, #2bcf78);
+  color: #03130a;
 }
 
 .saved-count {
@@ -345,8 +351,8 @@ input[type="range"] {
   border-radius: 50%;
   display: inline-grid;
   place-items: center;
-  background: rgba(72, 230, 255, 0.18);
-  color: var(--cyan);
+  background: rgba(3, 16, 20, 0.84);
+  color: white;
   font-size: 0.62rem;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
@@ -354,63 +360,60 @@ input[type="range"] {
 
 .saved-modal {
   position: fixed;
-  inset: 0;
+  top: max(10px, env(safe-area-inset-top));
+  left: 0;
+  right: 0;
   z-index: 20;
   display: grid;
-  align-items: end;
   justify-items: center;
-  padding: 18px;
-}
-
-.saved-modal-backdrop {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  border-radius: 0;
-  background: rgba(1, 4, 7, 0.72);
-  backdrop-filter: blur(3px);
+  padding-inline: 12px;
+  pointer-events: none;
 }
 
 .saved-dialog {
   position: relative;
   width: min(100%, 444px);
-  max-height: min(64svh, 560px);
-  border: 1px solid rgba(72, 230, 255, 0.28);
+  max-height: 160px;
+  border: 1px solid rgba(72, 230, 255, 0.48);
   border-radius: 8px;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   background: #10161d;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.76), 0 0 0 1px rgba(72, 230, 255, 0.08);
   overflow: hidden;
+  pointer-events: auto;
 }
 
 .saved-dialog-header {
-  min-height: 72px;
+  min-height: 54px;
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 13px 14px 12px 16px;
+  padding: 7px 8px 7px 13px;
+}
+
+.saved-dialog-header .eyebrow {
+  margin-bottom: 1px;
+  font-size: 0.58rem;
 }
 
 .saved-dialog-header h2 {
   margin: 0;
   color: var(--cyan);
-  font-size: 1.25rem;
+  font-size: 1rem;
   letter-spacing: 0;
 }
 
 .saved-close-button {
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   background: #0a1016;
   color: rgba(244, 251, 255, 0.72);
-  font-size: 1.7rem;
+  font-size: 1.5rem;
   line-height: 1;
   cursor: pointer;
 }
@@ -422,7 +425,7 @@ input[type="range"] {
 }
 
 .saved-frequency-row {
-  min-height: 68px;
+  min-height: 53px;
   border-bottom: 1px solid var(--line);
   display: grid;
   grid-template-columns: minmax(0, 1fr) 48px;
@@ -447,7 +450,7 @@ input[type="range"] {
 
 .saved-frequency-hz {
   color: var(--text);
-  font-size: 1.3rem;
+  font-size: 1.08rem;
   font-weight: 1000;
   font-variant-numeric: tabular-nums;
 }
@@ -476,15 +479,11 @@ input[type="range"] {
 
 .saved-frequency-empty {
   margin: 0;
-  padding: 42px 18px;
+  padding: 24px 18px;
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 750;
   text-align: center;
-}
-
-body.saved-modal-open {
-  overflow: hidden;
 }
 
 .noise-display {

@@ -71,7 +71,7 @@
               <span aria-hidden="true">+</span>
               <span>SAVE</span>
             </button>
-            <button id="openSavedButton" class="frequency-action" type="button" aria-haspopup="dialog">
+            <button id="openSavedButton" class="frequency-action open-saved-button" type="button" aria-haspopup="dialog" aria-expanded="false">
               <span aria-hidden="true">≡</span>
               <span>SAVED</span>
               <span id="savedFrequencyCount" class="saved-count">0</span>
@@ -172,8 +172,7 @@
     </main>
 
     <div id="savedFrequencyModal" class="saved-modal" hidden>
-      <button id="savedModalBackdrop" class="saved-modal-backdrop" type="button" aria-label="Close saved frequencies"></button>
-      <section class="saved-dialog" role="dialog" aria-modal="true" aria-labelledby="savedDialogTitle">
+      <section class="saved-dialog" role="dialog" aria-labelledby="savedDialogTitle">
         <header class="saved-dialog-header">
           <div>
             <p class="eyebrow">Frequency Memory</p>
