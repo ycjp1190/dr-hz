@@ -12,6 +12,7 @@ const MIN_SPIN_VELOCITY = 0.18;
 const MIN_THROW_VELOCITY = 1.35;
 const MAX_SPIN_VELOCITY = 16;
 const AUDIO_START_TIMEOUT_MS = 1500;
+const SAVED_FREQUENCIES_KEY = "dr-hz-saved-frequencies";
 const AUTO_VOLUME_POINTS = [
   [20, 1],
   [40, 0.9733],
@@ -50,6 +51,14 @@ const noiseName = document.querySelector("#noiseName");
 const noiseDescription = document.querySelector("#noiseDescription");
 const noiseGraph = document.querySelector("#noiseGraph");
 const noiseGraphLine = document.querySelector("#noiseGraphLine");
+const saveFrequencyButton = document.querySelector("#saveFrequencyButton");
+const openSavedButton = document.querySelector("#openSavedButton");
+const savedFrequencyCount = document.querySelector("#savedFrequencyCount");
+const savedFrequencyModal = document.querySelector("#savedFrequencyModal");
+const savedModalBackdrop = document.querySelector("#savedModalBackdrop");
+const closeSavedButton = document.querySelector("#closeSavedButton");
+const savedFrequencyList = document.querySelector("#savedFrequencyList");
+const savedFrequencyEmpty = document.querySelector("#savedFrequencyEmpty");
 
 const NOISE_PRESETS = {
   white: {
@@ -106,6 +115,7 @@ let volume = Number(volumeSlider.value) / 100;
 let dragState = null;
 let spinVelocity = 0;
 let spinFrame = 0;
+let savedFrequencies = loadSavedFrequencies();
 const wheelStates = {
   coarse: {
     sensitivity: COARSE_HZ_PER_PIXEL,
@@ -125,6 +135,103 @@ const wheelStates = {
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+function loadSavedFrequencies() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(SAVED_FREQUENCIES_KEY) || "[]");
+    if (!Array.isArray(stored)) return [];
+    return [...new Set(stored
+      .map(Number)
+      .filter((hz) => Number.isInteger(hz) && hz >= MIN_FREQUENCY && hz <= MAX_FREQUENCY))];
+  } catch {
+    return [];
+  }
+}
+
+function persistSavedFrequencies() {
+  try {
+    localStorage.setItem(SAVED_FREQUENCIES_KEY, JSON.stringify(savedFrequencies));
+  } catch (error) {
+    console.warn("Could not save frequency list", error);
+  }
+}
+
+function renderSavedFrequencies() {
+  savedFrequencyList.replaceChildren();
+  savedFrequencyCount.textContent = String(savedFrequencies.length);
+  savedFrequencyEmpty.hidden = savedFrequencies.length > 0;
+
+  savedFrequencies.forEach((hz) => {
+    const row = document.createElement("div");
+    row.className = "saved-frequency-row";
+
+    const loadButton = document.createElement("button");
+    loadButton.className = "saved-frequency-load";
+    loadButton.type = "button";
+    loadButton.setAttribute("aria-label", `Load ${hz} Hz`);
+
+    const hzLabel = document.createElement("span");
+    hzLabel.className = "saved-frequency-hz";
+    hzLabel.textContent = `${hz} Hz`;
+
+    const noteLabel = document.createElement("span");
+    noteLabel.className = "saved-frequency-note";
+    noteLabel.textContent = noteNameForFrequency(hz);
+
+    loadButton.append(hzLabel, noteLabel);
+    loadButton.addEventListener("click", () => {
+      stopSpin();
+      resetAllWheelRemainders();
+      setFrequency(hz);
+      closeSavedFrequencies();
+    });
+
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "saved-frequency-delete";
+    deleteButton.type = "button";
+    deleteButton.textContent = "×";
+    deleteButton.setAttribute("aria-label", `Delete ${hz} Hz`);
+    deleteButton.addEventListener("click", () => {
+      savedFrequencies = savedFrequencies.filter((savedHz) => savedHz !== hz);
+      persistSavedFrequencies();
+      renderSavedFrequencies();
+      updateSaveButton();
+    });
+
+    row.append(loadButton, deleteButton);
+    savedFrequencyList.append(row);
+  });
+}
+
+function updateSaveButton() {
+  const isSaved = savedFrequencies.includes(Math.round(frequency));
+  saveFrequencyButton.classList.toggle("saved", isSaved);
+  saveFrequencyButton.querySelector("span:last-child").textContent = isSaved ? "SAVED" : "SAVE";
+  saveFrequencyButton.querySelector("span:first-child").textContent = isSaved ? "✓" : "+";
+}
+
+function saveCurrentFrequency() {
+  const currentHz = Math.round(frequency);
+  if (!savedFrequencies.includes(currentHz)) {
+    savedFrequencies.unshift(currentHz);
+    persistSavedFrequencies();
+    renderSavedFrequencies();
+  }
+  updateSaveButton();
+}
+
+function openSavedFrequencies() {
+  renderSavedFrequencies();
+  savedFrequencyModal.hidden = false;
+  document.body.classList.add("saved-modal-open");
+  closeSavedButton.focus();
+}
+
+function closeSavedFrequencies() {
+  savedFrequencyModal.hidden = true;
+  document.body.classList.remove("saved-modal-open");
+  openSavedButton.focus();
 }
 
 function frequencyToSliderValue(hz) {
@@ -159,6 +266,7 @@ function updateDisplay() {
     wheel.setAttribute("aria-valuenow", String(Math.round(frequency)));
   });
   updateFaderFill();
+  updateSaveButton();
 }
 
 function noteNameForFrequency(hz) {
@@ -643,6 +751,17 @@ noiseButtons.forEach((button) => {
   });
 });
 
+saveFrequencyButton.addEventListener("click", saveCurrentFrequency);
+openSavedButton.addEventListener("click", openSavedFrequencies);
+closeSavedButton.addEventListener("click", closeSavedFrequencies);
+savedModalBackdrop.addEventListener("click", closeSavedFrequencies);
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !savedFrequencyModal.hidden) {
+    closeSavedFrequencies();
+  }
+});
+
 tuningWheels.forEach((wheel) => {
   wheel.addEventListener("pointerdown", beginFineDrag);
   wheel.addEventListener("pointermove", updateFineDrag);
@@ -674,6 +793,7 @@ setVolume(volume);
 setToneWaveform(toneWaveform);
 setNoiseType(noiseType);
 setMode(mode);
+renderSavedFrequencies();
 
 if (!supportsWebAudio()) {
   setAudioStatus("Web Audio is not supported in this browser.");

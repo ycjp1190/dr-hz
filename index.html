@@ -66,6 +66,17 @@
             <div class="frequency-unit">Hz</div>
           </div>
           <div id="frequencyNote" class="frequency-note">A4</div>
+          <div class="frequency-actions">
+            <button id="saveFrequencyButton" class="frequency-action save-frequency-button" type="button">
+              <span aria-hidden="true">+</span>
+              <span>SAVE</span>
+            </button>
+            <button id="openSavedButton" class="frequency-action" type="button" aria-haspopup="dialog">
+              <span aria-hidden="true">≡</span>
+              <span>SAVED</span>
+              <span id="savedFrequencyCount" class="saved-count">0</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -159,6 +170,21 @@
         <button class="noise-button wide" type="button" data-noise="grey">GREY</button>
       </section>
     </main>
+
+    <div id="savedFrequencyModal" class="saved-modal" hidden>
+      <button id="savedModalBackdrop" class="saved-modal-backdrop" type="button" aria-label="Close saved frequencies"></button>
+      <section class="saved-dialog" role="dialog" aria-modal="true" aria-labelledby="savedDialogTitle">
+        <header class="saved-dialog-header">
+          <div>
+            <p class="eyebrow">Frequency Memory</p>
+            <h2 id="savedDialogTitle">SAVED Hz</h2>
+          </div>
+          <button id="closeSavedButton" class="saved-close-button" type="button" aria-label="Close saved frequencies">×</button>
+        </header>
+        <div id="savedFrequencyList" class="saved-frequency-list"></div>
+        <p id="savedFrequencyEmpty" class="saved-frequency-empty">저장된 주파수가 없습니다.</p>
+      </section>
+    </div>
 
     <script src="./app.js"></script>
     <script>
