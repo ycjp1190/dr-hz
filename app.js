@@ -13,22 +13,31 @@ const MIN_THROW_VELOCITY = 1.35;
 const MAX_SPIN_VELOCITY = 16;
 const AUDIO_START_TIMEOUT_MS = 1500;
 const SAVED_FREQUENCIES_KEY = "dr-hz-saved-frequencies";
+// Base Galaxy S26 speaker compensation with a user-calibrated 9 kHz notch.
 const AUTO_VOLUME_POINTS = [
   [20, 1],
-  [40, 0.9733],
-  [63, 0.9333],
+  [40, 0.98],
+  [63, 0.94],
   [100, 0.88],
-  [160, 0.8267],
-  [250, 0.7733],
-  [440, 0.72],
-  [1000, 0.6133],
-  [2000, 0.4533],
-  [3500, 0.4],
-  [5000, 0.4133],
-  [8000, 0.44],
-  [12000, 0.48],
-  [16000, 0.4667],
-  [20000, 0.44],
+  [160, 0.8],
+  [250, 0.72],
+  [440, 0.64],
+  [630, 0.58],
+  [1000, 0.48],
+  [1250, 0.38],
+  [1600, 0.3],
+  [2000, 0.24],
+  [2500, 0.2],
+  [3150, 0.21],
+  [4000, 0.24],
+  [5000, 0.28],
+  [6300, 0.25],
+  [8000, 0.22],
+  [9000, 0.2],
+  [10000, 0.22],
+  [12500, 0.32],
+  [16000, 0.42],
+  [20000, 0.5],
 ];
 
 const playButton = document.querySelector("#playButton");
@@ -312,7 +321,10 @@ function autoVolumeForFrequency(hz) {
       const leftLog = Math.log10(leftFrequency);
       const rightLog = Math.log10(rightFrequency);
       const normalized = (frequencyLog - leftLog) / (rightLog - leftLog);
-      return leftVolume + (rightVolume - leftVolume) * clamp(normalized, 0, 1);
+      const leftDb = 20 * Math.log10(leftVolume);
+      const rightDb = 20 * Math.log10(rightVolume);
+      const interpolatedDb = leftDb + (rightDb - leftDb) * clamp(normalized, 0, 1);
+      return 10 ** (interpolatedDb / 20);
     }
   }
 
